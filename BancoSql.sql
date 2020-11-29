@@ -207,3 +207,161 @@ INSERT INTO ITENS_VENDA VALUES
 (1,2)
 
 
+-----------------------------------------------------------------------------------
+
+-- LIVRO DAO
+
+-- MÉTODO buscaLivro
+SELECT l.ID_LIVRO, p.VALOR AS PRECO , l.TITULO, a.NOME AS AUTOR , l.ISBN,l.GENERO, l.EDICAO, l.ANO,l.QTS_ESTOQUE,l.IDIOMA, l.DESCRICAO
+FROM LIVRO l INNER JOIN LIVRO_AUTOR la
+ON l.ID_LIVRO = la.FK_LIVRO_LIVRO_AUTOR
+INNER JOIN AUTOR a
+ON a.ID_AUTOR = la.FK_AUTOR_LIVRO_AUTOR 
+INNER JOIN PRECO p
+ON p.ID_PRECO = l.PRECO_ATUAL
+WHERE l.TITULO LIKE  ?
+WHERE l.ISBN LIKE ?
+WHERE a.NOME LIKE ?
+
+-- MÉTODO atualizaEstoque
+UPDATE LIVRO
+SET QTS_ESTOQUE = ?
+WHERE ID_LIVRO = ?
+
+-- MÉTODO buscaLivroTitulo
+SELECT l.ID_LIVRO , l.TITULO , l.ISBN , l.GENERO , l.EDICAO , l.ANO , 
+l.PRECO_ATUAL, l.QTS_ESTOQUE , l.IDIOMA , l.DESCRICAO
+FROM LIVRO l
+WHERE l.TITULO LIKE ?
+
+-- MÉTODO alteraPrecoLivro
+update LIVRO set Preco_Atual = ? where ID_LIVRO = ?
+
+-----------------------------------------------------------------------------------
+
+-- CLIENTE DAO
+
+-- MÉTODO insereCliente
+INSERT INTO CLIENTE VALUES ( GETDATE(), ?)
+
+-- MÉTODO atualizaCliente
+UPDATE CLIENTE c SET nome = ? WHERE c.FK_PESSOA_CLIENTE = ?
+
+-- MÉTODO excluiCliente
+DELETE CLIENTE c WHERE c.FK_PESSOA_CLIENTE = ?
+
+-- MÉTODO buscaClienteNome
+Select c.ID_CLIENTE,p.ID_PESSOA,p.NOME,p.EMAIL,p.CPF,p.DATA_NASCIMENTO,
+c.DATA_CADASTRO, c.FK_PESSOA_CLIENTE,p.FK_EDERECO_PESSOA AS FK_ENDERECO
+From CLIENTE c INNER JOIN PESSOA p
+ON C.FK_PESSOA_CLIENTE = P.ID_PESSOA
+WHERE p.NOME LIKE ?
+
+-- MÉTODO buscaClienteCpf
+Select c.ID_CLIENTE,p.ID_PESSOA,p.NOME,p.EMAIL,p.CPF,p.DATA_NASCIMENTO,
+c.DATA_CADASTRO, c.FK_PESSOA_CLIENTE,p.FK_EDERECO_PESSOA AS FK_ENDERECO
+From CLIENTE c INNER JOIN PESSOA p
+ON C.FK_PESSOA_CLIENTE = P.ID_PESSOA
+WHERE p.CPF = ?
+
+-----------------------------------------------------------------------------------
+
+-- ENDERECO DAO
+
+-- MÉTODO insereEndereco
+INSERT INTO ENDERECO VALUES(?,?,?,?,?,?,?)
+
+-----------------------------------------------------------------------------------
+
+-- FUNCIONARIO DAO
+
+-- MÉTODO insereFuncionario
+INSERT INTO FUNCIONARIO VALUES(?,?,?,?)
+
+-- MÉTODO buscaFuncionarioId
+SELECT ID_FUNCIONARIO, CARGO, MATRICULA, DATA_ADMISSAO,
+FK_PESSOA_FUNCIONARIO FROM FUNCIONARIO  WHERE ID_FUNCIONARIO = ?
+
+-- MÉTODO buscaFuncionarioNome
+select * from FUNCIONARIO f, PESSOA p
+where f.FK_PESSOA_fUNCIONARIO = p.ID_PESSOA and NOME like ?
+
+-- MÉTODO getListaFuncionario()
+SELECT p.NOME,f.*
+FROM FUNCIONARIO f, PESSOA p where f.FK_PESSOA_fUNCIONARIO = p.ID_PESSOA
+
+-----------------------------------------------------------------------------------
+
+-- ITENS VENDA DAO
+
+-- MÉTODO insereLivro
+INSERT INTO ITENS_VENDA VALUES (" + idVenda + ", ?)
+
+-----------------------------------------------------------------------------------
+
+-- PESSOA DAO
+
+-- MÉTODO inserePessoa
+INSERT INTO PESSOA VALUES(?,?,?,?,?)
+
+-- MÉTODO buscaPessoa
+select ID_PESSOA,CPF from Pessoa where CPF = ?
+
+-- MÉTODO verificaDuplicCpf
+select CPF from Pessoa where CPF = ?
+
+-- MÉTODO verificaDuplicEmail
+select EMAIL from Pessoa where EMAIL = ?
+
+-----------------------------------------------------------------------------------
+
+-- PRECO DAO
+
+-- MÉTODO inserirPreco
+INSERT INTO PRECO VALUES( GETDATE(), ? ,?)
+
+-- MÉTODO buscaPrecoId
+SELECT p.ID_PRECO, p.DATA_PRECO, p.VALOR, p.FK_LIVRO_PRECO
+FROM PRECO p
+WHERE p.ID_PRECO = ?
+
+-----------------------------------------------------------------------------------
+
+-- TELEFONE DAO
+
+-- MÉTODO insereTelefone
+INSERT INTO TELEFONE VALUES(?,?,?,?)
+
+-----------------------------------------------------------------------------------
+
+-- USUARIO DAO
+
+-- MÉTODO insereUsuario
+INSERT INTO USUARIO VALUES(?,?,?)
+
+-- MÉTODO alteraUsuario
+update USUARIO set LOGIN = ?,SENHA = ? WHERE FK_FUNCIONARIO_USUARIO = ?
+
+-- MÉTODO deletarUsuario
+Delete from USUARIO where ID_USUARIO = ?
+
+-- MÉTODO buscaUsuarioUsuario
+SELECT ID_USUARIO, LOGIN, SENHA,FK_FUNCIONARIO_USUARIO FROM USUARIO WHERE LOGIN = ?
+
+-- MÉTODO buscaUsuario
+SELECT ID_USUARIO, LOGIN, SENHA,FK_FUNCIONARIO_USUARIO FROM USUARIO WHERE LOGIN = ?
+
+-- MÉTODO buscaListaUsuarios
+SELECT ID_USUARIO, LOGIN, SENHA,FK_FUNCIONARIO_USUARIO FROM USUARIO
+
+-- MÉTODO atualizarSenha
+UPDATE USUARIO SET SENHA = ? WHERE ID_USUARIO = ?
+
+-----------------------------------------------------------------------------------
+
+-- VENDA DAO 
+
+-- MÉTODO inserirVenda
+INSERT INTO VENDA VALUES( GETDATE(), ?)
+
+-----------------------------------------------------------------------------------
