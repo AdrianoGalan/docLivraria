@@ -98,7 +98,7 @@ GO
 /*CRIAR TABELA AUTOR*/
 CREATE TABLE AUTOR(
 	ID_AUTOR INT IDENTITY NOT NULL,
-	NOME VARCHAR(150) NOT NULL,
+	NOME VARCHAR(150) NOT NULL UNIQUE,
 	NACIONALIDADE VARCHAR(50) NOT NULL,
 	PRIMARY KEY(ID_AUTOR)
 )
@@ -152,7 +152,7 @@ INSERT INTO ENDERECO VALUES
 /* INSERIR PESSOA */
 
 INSERT INTO PESSOA VALUES
-('MASTER', '12345678901','MASTER@EMAIL.COM','05-16-1985', 1),
+('JOAO DA SILVA', '12345678901','JOÃO@EMAIL.COM','05-16-1985', 1),
 --('ARISTEU', '13526352635','ARISTEU@EMAIL.COM','01-30-1980', 2),
 --('ADRIANO', '98765432432','ADRIANO@EMAIL.COM','01-30-1989', 3)
 
@@ -168,29 +168,76 @@ INSERT INTO FUNCIONARIO VALUES
 
 /*INSERIR USUARIO*/
 INSERT INTO USUARIO VALUES
-('MASTER', 'senha',1)
+('JOAO', 'senha',1)
+
+/*INSERIR CLIENTE */
+INSERT INTO CLIENTE VALUES
+('10-20-2020',2),
+('10-20-2020',3)
+
+/* INSERIR LIVRO*/
+INSERT INTO LIVRO VALUES
+('MEU PRIMEIRO LIVRO','123','TERRO','1','2010',1,10,'ALEMÃO','PENSA EM UM LIVRO CHATO, É ESTE'),
+('MEU sEGUNDO LIVRO','456','TERRO','2','2012',2,50,'ITALIANO','CHATO TB O SEGUNDO')
+
+/* INSERER PREÇO */
+INSERT INTO PRECO VALUES
+(GETDATE(), 25.23,1),
+(GETDATE(), 50.00,2)
+
+
+/*INSERIR AUTOR*/
+INSERT INTO AUTOR VALUES
+('VERUSKS', 'ALEMÃO'),
+('ZE LINDINHO', 'ITALIANO')
+
+/*INSERIR LUVRO_AUTOR*/
+INSERT INTO LIVRO_AUTOR VALUES
+(1,2),
+(2,1)
+
+
+/*INSERIR UMA VENDA*/
+INSERT INTO VENDA VALUES
+(GETDATE(), 1)
+
+-- INSERIR ITENS VENDA
+INSERT INTO ITENS_VENDA VALUES
+(1,1),
+(1,2)
+
 
 -----------------------------------------------------------------------------------
 
--- AUTOR DAO 
+-- LIVRO DAO
 
--- MÉTODO insereAutor
-INSERT INTO AUTOR VALUES (?,?)
+-- MÉTODO buscaLivro
+SELECT l.ID_LIVRO, p.VALOR AS PRECO , l.TITULO, a.NOME AS AUTOR , l.ISBN,l.GENERO, l.EDICAO, l.ANO,l.QTS_ESTOQUE,l.IDIOMA, l.DESCRICAO
+FROM LIVRO l INNER JOIN LIVRO_AUTOR la
+ON l.ID_LIVRO = la.FK_LIVRO_LIVRO_AUTOR
+INNER JOIN AUTOR a
+ON a.ID_AUTOR = la.FK_AUTOR_LIVRO_AUTOR 
+INNER JOIN PRECO p
+ON p.ID_PRECO = l.PRECO_ATUAL
+WHERE l.TITULO LIKE  ?
+WHERE l.ISBN LIKE ?
+WHERE a.NOME LIKE ?
 
--- MÉTODO alteraAutor
-UPDATE AUTOR SET NOME = ?, NACIONALIDADE = ? where ID_AUTOR = ?
+-- MÉTODO atualizaEstoque
+UPDATE LIVRO
+SET QTS_ESTOQUE = ?
+WHERE ID_LIVRO = ?
 
--- MÉTODO listarAutores
-select * from AUTOR
+-- MÉTODO buscaLivroTitulo
+SELECT l.ID_LIVRO , l.TITULO , l.ISBN , l.GENERO , l.EDICAO , l.ANO , 
+l.PRECO_ATUAL, l.QTS_ESTOQUE , l.IDIOMA , l.DESCRICAO
+FROM LIVRO l
+WHERE l.TITULO LIKE ?
 
--- MÉTODO verificaDuplicNome
-select NOME from AUTOR where NOME = ?
-
--- MÉTODO pesquisarAutores
-select * from AUTOR where NOME like ?
+-- MÉTODO alteraPrecoLivro
+update LIVRO set Preco_Atual = ? where ID_LIVRO = ?
 
 -----------------------------------------------------------------------------------
-
 
 -- CLIENTE DAO
 
@@ -224,14 +271,6 @@ WHERE p.CPF = ?
 -- MÉTODO insereEndereco
 INSERT INTO ENDERECO VALUES(?,?,?,?,?,?,?)
 
--- MÉTODO buscaEndereco
-select * from ENDERECO where ID_ENDERECO = ?
-
--- MÉTODO alteraEndereco
-update ENDERECO set RUA = ?,NUMERO = ?,BAIRRO = ?, CIDADE = ?, ESTADO = ?, COMPLEMENTO = ?, CEP = ? "
-				+ "where ID_ENDERECO = ?
-
- 
 -----------------------------------------------------------------------------------
 
 -- FUNCIONARIO DAO
@@ -247,12 +286,9 @@ FK_PESSOA_FUNCIONARIO FROM FUNCIONARIO  WHERE ID_FUNCIONARIO = ?
 select * from FUNCIONARIO f, PESSOA p
 where f.FK_PESSOA_fUNCIONARIO = p.ID_PESSOA and NOME like ?
 
--- MÉTODO getListaFuncionario
+-- MÉTODO getListaFuncionario()
 SELECT p.NOME,f.*
 FROM FUNCIONARIO f, PESSOA p where f.FK_PESSOA_fUNCIONARIO = p.ID_PESSOA
-
--- MÉTODO atualizaFuncionario
-update FUNCIONARIO set CARGO = ?, MATRICULA = ?, DATA_ADMISSAO = ? where ID_FUNCIONARIO = ?
 
 -----------------------------------------------------------------------------------
 
@@ -263,45 +299,6 @@ INSERT INTO ITENS_VENDA VALUES (" + idVenda + ", ?)
 
 -----------------------------------------------------------------------------------
 
--- LIVRO DAO
-
--- MÉTODO insereLivro
-INSERT INTO LIVRO VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)
-
--- MÉTODO insereLivroAutor
-insert into LIVRO_AUTOR values(?,?)
-
--- MÉTODO buscaLivro
-SELECT l.ID_LIVRO, p.VALOR AS PRECO , l.TITULO, a.NOME AS AUTOR , l.ISBN,l.GENERO, l.EDICAO, l.ANO,l.QTS_ESTOQUE,l.IDIOMA, l.DESCRICAO
-FROM LIVRO l INNER JOIN LIVRO_AUTOR la
-ON l.ID_LIVRO = la.FK_LIVRO_LIVRO_AUTOR
-INNER JOIN AUTOR a
-ON a.ID_AUTOR = la.FK_AUTOR_LIVRO_AUTOR 
-INNER JOIN PRECO p
-ON p.ID_PRECO = l.PRECO_ATUAL
-WHERE l.TITULO LIKE  ?
-WHERE l.ISBN LIKE ?
-WHERE a.NOME LIKE ?
-
--- MÉTODO atualizaEstoque
-UPDATE LIVRO
-SET QTS_ESTOQUE = ?
-WHERE ID_LIVRO = ?
-
--- MÉTODO buscaLivroTitulo
-SELECT l.ID_LIVRO , l.TITULO , l.ISBN , l.GENERO , l.EDICAO , l.ANO , 
-l.PRECO_ATUAL, l.QTS_ESTOQUE , l.IDIOMA , l.DESCRICAO
-FROM LIVRO l
-WHERE l.TITULO LIKE ?
-
--- MÉTODO verificaDuplicIsbn
-select ISBN from LIVRO where ISBN = ?
-
--- MÉTODO alteraPrecoLivro
-update LIVRO set Preco_Atual = ? where ID_LIVRO = ?
-
------------------------------------------------------------------------------------
-
 -- PESSOA DAO
 
 -- MÉTODO inserePessoa
@@ -309,9 +306,6 @@ INSERT INTO PESSOA VALUES(?,?,?,?,?)
 
 -- MÉTODO buscaPessoa
 select ID_PESSOA,CPF from Pessoa where CPF = ?
-
--- MÉTODO atualizaPessoa
-update PESSOA set NOME = ?,CPF = ?, EMAIL = ?, DATA_NASCIMENTO = ? where ID_PESSOA = ?
 
 -- MÉTODO verificaDuplicCpf
 select CPF from Pessoa where CPF = ?
@@ -333,55 +327,10 @@ WHERE p.ID_PRECO = ?
 
 -----------------------------------------------------------------------------------
 
--- RELATORIO DAO
-
--- MÉTODO livroMaisVendido
-SELECT l.ISBN, l.TITULO , COUNT(FK_LIVRO_ITENSVENDA) AS QTD 
-FROM ITENS_VENDA iv INNER JOIN LIVRO l
-ON l.ID_LIVRO = iv.FK_LIVRO_ITENSVENDA  
-GROUP BY l.TITULO, l.ISBN
-ORDER BY QTD DESC
-
--- MÉTODO livroMenosVendido
-SELECT l.ISBN, l.TITULO , COUNT(FK_LIVRO_ITENSVENDA) AS QTD
-FROM ITENS_VENDA iv INNER JOIN LIVRO l
-ON l.ID_LIVRO = iv.FK_LIVRO_ITENSVENDA
-GROUP BY l.TITULO, l.ISBN
-ORDER BY QTD
-
--- MÉTODO livroEstoqueBaixo
-SELECT l.ISBN, l.TITULO, l.QTS_ESTOQUE
-FROM LIVRO l 
-WHERE l.QTS_ESTOQUE < 5
-
--- MÉTODO dataVenda
-SELECT l.ISBN , l.TITULO , MAX( CONVERT(CHAR(10), v.DATA_VENDA , 103)) AS DAtAV
-FROM LIVRO l INNER JOIN ITENS_VENDA iv
-ON l.ID_LIVRO = iv.FK_LIVRO_ITENSVENDA
-INNER JOIN VENDA v
-ON v.ID_VENDA = iv.FK_VENDA_ITENSVENDA 
-GROUP BY l.ISBN , l.TITULO
-ORDER BY DAtAV
-
--- MÉTODO melhorDiaSemana
-SELECT DATEPART(dw, v.DATA_VENDA) AS DIA , COUNT(iv.FK_VENDA_ITENSVENDA) AS TOTAL_ITENS 
-FROM VENDA v INNER JOIN ITENS_VENDA iv  
-ON v.ID_VENDA = iv.FK_VENDA_ITENSVENDA  
-GROUP BY DATEPART(dw, v.DATA_VENDA)
-ORDER BY TOTAL_ITENS
-
------------------------------------------------------------------------------------
-
 -- TELEFONE DAO
 
 -- MÉTODO insereTelefone
 INSERT INTO TELEFONE VALUES(?,?,?,?)
-
--- MÉTODO buscaTelefone
-select * from TELEFONE where FK_PESSOA_TELEFONE = ?
-
--- MÉTODO atualizaTelefone
-update TELEFONE set TIPO = ?,DDD = ?, TELEFONE = ? WHERE FK_PESSOA_TELEFONE = ?
 
 -----------------------------------------------------------------------------------
 
@@ -416,4 +365,3 @@ UPDATE USUARIO SET SENHA = ? WHERE ID_USUARIO = ?
 INSERT INTO VENDA VALUES( GETDATE(), ?)
 
 -----------------------------------------------------------------------------------
- 
